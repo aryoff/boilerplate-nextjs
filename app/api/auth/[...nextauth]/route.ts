@@ -44,9 +44,10 @@ export const authOptions: NextAuthOptions = {
         }
 
         return {
-          id: user.id + "",
+          id: user.id.toString(),
           email: user.email,
           name: user.name,
+          role: "user",
           websocketKey: crypto.randomUUID(),
         };
       },
@@ -56,28 +57,17 @@ export const authOptions: NextAuthOptions = {
     signIn: "/signIn",
   },
   callbacks: {
-    session: ({ session, token }) => {
-      // console.log("Session Callback", { session, token });
-      return {
-        ...session,
-        user: {
-          ...session.user,
-          id: token.id,
-          websocketKey: token.websocketKey,
-        },
-      };
-    },
-    jwt: ({ token, user }) => {
+    async jwt({ token, user }) {
       // console.log("JWT Callback", { token, user });
-      if (user) {
-        const u = user as unknown as any;
-        return {
-          ...token,
-          id: u.id,
-          websocketKey: u.websocketKey,
-        };
-      }
+      if (user) token.role = user.role;
+      if (user) token.websocketKey = user.websocketKey;
       return token;
+    },
+    async session({ session, token }) {
+      // console.log("Session Callback", { session, token });
+      if (session?.user) session.user.role = token.role;
+      if (session?.user) session.user.websocketKey = token.websocketKey;
+      return session;
     },
   },
 };

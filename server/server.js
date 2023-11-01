@@ -23,20 +23,20 @@ io.use((socket, next) => {
   const sessionID = socket.handshake.auth.sessionID;
   if (sessionID) {
     // find existing session
-    const session = sessionStore.findSession(sessionID);
-    if (session) {
-      socket.sessionID = sessionID;
-      socket.userID = session.userID;
-      socket.username = session.username;
-      return next();
-    }
+    console.log(sessionID)
+    // const session = sessionStore.findSession(sessionID);
+    // if (session) {
+    //   socket.sessionID = sessionID;
+    //   socket.userID = session.userID;
+    //   socket.username = session.username;
+    //   return next();
+    // }
   }
   const jwtToken = socket.handshake.auth.jwtToken;
   decodeToken(socket.handshake.auth.jwtToken).then((token) => {
     if (!jwtToken || token === null || Date.now() >= token.exp * 1000) {
       return next(new Error("invalid token"));
     }
-    console.log(token);
     // create new session
     socket.sessionID = token.websocketKey;
     socket.userID = token.id;
