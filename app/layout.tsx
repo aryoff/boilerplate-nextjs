@@ -2,14 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "../sass/custom.scss";
 import "./globals.css";
-
-import dynamic from "next/dynamic";
 import { Providers } from "./providers";
-
-const DynamicBootstrap = dynamic(
-  () => require("bootstrap/dist/js/bootstrap.min.js"),
-  { ssr: false },
-);
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,9 +13,9 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode;
-}) {
+}>) {
   return (
     <html lang="en">
       <body className={inter.className}>

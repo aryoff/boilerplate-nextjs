@@ -8,6 +8,7 @@ type Props = {
   className?: string;
   callbackUrl?: string;
   error?: string;
+  modal?: boolean;
 };
 
 const Login = (props: Props) => {
@@ -22,6 +23,16 @@ const Login = (props: Props) => {
       callbackUrl: props.callbackUrl ?? "/",
     });
   };
+  let button;
+  if (props.modal) {
+    button = "";
+  } else {
+    button = (
+      <Button variant="danger" href={props.callbackUrl ?? "/"}>
+        Cancel
+      </Button>
+    );
+  }
   return (
     <div className={props.className}>
       <div className="tw-text-center">Login Form</div>
@@ -46,9 +57,7 @@ const Login = (props: Props) => {
         <Button variant="primary" type="submit">
           Sign In
         </Button>
-        <Button variant="danger" href={props.callbackUrl ?? "/"}>
-          Cancel
-        </Button>
+        {button}
       </Form>
     </div>
   );

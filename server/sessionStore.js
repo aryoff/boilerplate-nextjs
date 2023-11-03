@@ -22,3 +22,7 @@ class InMemorySessionStore extends SessionStore {
       return [...this.sessions.values()];
     }
   }
+
+  module.exports = {
+    InMemorySessionStore
+  };

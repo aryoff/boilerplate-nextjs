@@ -2,7 +2,7 @@ const http = require("http");
 const server = http.createServer((req, res) => {
   // Handle HTTP requests if needed
 });
-const { sessionStore } = require("./sessionStore");
+const { InMemorySessionStore } = require("./sessionStore");
 const { Server } = require("socket.io");
 const { decode } = require("next-auth/jwt");
 const io = new Server(server, {
@@ -10,6 +10,8 @@ const io = new Server(server, {
     origin: "*",
   },
 });
+
+const sessionStore = new InMemorySessionStore();
 
 async function decodeToken(token) {
   const decoded = await decode({
@@ -23,14 +25,13 @@ io.use((socket, next) => {
   const sessionID = socket.handshake.auth.sessionID;
   if (sessionID) {
     // find existing session
-    console.log(sessionID)
-    // const session = sessionStore.findSession(sessionID);
-    // if (session) {
-    //   socket.sessionID = sessionID;
-    //   socket.userID = session.userID;
-    //   socket.username = session.username;
-    //   return next();
-    // }
+    const session = sessionStore.findSession(sessionID);
+    if (session) {
+      socket.sessionID = sessionID;
+      socket.userID = session.userID;
+      socket.username = session.username;
+      return next();
+    }
   }
   const jwtToken = socket.handshake.auth.jwtToken;
   decodeToken(socket.handshake.auth.jwtToken).then((token) => {
@@ -58,6 +59,15 @@ io.on("connection", (socket) => {
     userID: socket.userID,
   });
 
+  socket.join(socket.userID);
+  socket.on("private message", ({ content, to }) => {
+    socket.to(to).to(socket.userID).emit("private message", {
+      content,
+      from: socket.userID,
+      to,
+    });
+  });
+
   // Handle chat messages
   socket.on("chat message", (message) => {
     io.emit("chat message", message); // Broadcast the message to all connected clients
@@ -65,7 +75,7 @@ io.on("connection", (socket) => {
 
   socket.on("disconnect", async () => {
     const matchingSockets = await io.in(socket.userID).fetchSockets();
-    const isDisconnected = matchingSockets.size === 0;
+    const isDisconnected = matchingSockets.length === 0;
     if (isDisconnected) {
       // notify other users
       socket.broadcast.emit("user disconnected", socket.userID);

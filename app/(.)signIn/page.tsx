@@ -1,19 +1,23 @@
+"use client";
 import Login from "@/components/Login";
-import React from "react";
+import React, { useState } from "react";
 import Modal from "react-bootstrap/Modal";
 
 type Props = {
   searchParams?: Record<"callbackUrl" | "error", string>;
 };
 
-const signInIntercept = (props: Props) => {
+const SignInIntercept = (props: Props) => {
+  const [show, setShow] = useState(true);
+  const handleClose = () => setShow(false);
   return (
-    <Modal>
-      <Modal.Header closeButton>
+    <Modal show={show} onHide={handleClose} backdrop="static" keyboard={false}>
+      <Modal.Header>
         <Modal.Title>Sign In Form</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <Login
+          modal={true}
           error={props.searchParams?.error}
           callbackUrl={props.searchParams?.callbackUrl}
         />
@@ -22,4 +26,4 @@ const signInIntercept = (props: Props) => {
   );
 };
 
-export default signInIntercept;
+export default SignInIntercept;
