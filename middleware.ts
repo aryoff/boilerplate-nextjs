@@ -7,8 +7,7 @@ export default withAuth(
       request.nextUrl.pathname.startsWith("/users") &&
       request.nextauth.token?.role !== "admin"
     ) {
-      // return NextResponse.rewrite(new URL("/denied", request.url));
-      return NextResponse.redirect(new URL("/", request.url));
+      return NextResponse.redirect(new URL("/", request.url)); //atau NextResponse.rewrite(new URL("/denied", request.url));
     }
   },
   {

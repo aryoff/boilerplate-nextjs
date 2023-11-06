@@ -16,8 +16,6 @@ export default function Chat({
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
 
-  console.log("chat");
-
   socket.auth = { jwtToken, sessionID };
   socket.connect();
   const [messages, setMessages] = useState([] as string[]);

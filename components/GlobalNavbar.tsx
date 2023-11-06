@@ -2,27 +2,28 @@ import Link from "next/link";
 import React from "react";
 import Container from "react-bootstrap/Container";
 import Navbar from "react-bootstrap/Navbar";
-import { cookies } from "next/headers";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { Stack } from "react-bootstrap";
 import MainMenu from "./MainMenu";
 import dynamic from "next/dynamic";
+import { Session } from "next-auth";
 const Chat = dynamic(() => import("./Chat"), { ssr: false });
 
-export default async function GlobalNavbar({
-  title,
-}: Readonly<{ title: string }>) {
-  const cookieStore = cookies();
-  const jwtToken = cookieStore.get("next-auth.session-token");
-  const session = await getServerSession(authOptions);
-  const sessionID = session?.user.websocketKey;
+type Props = {
+  title: string;
+  session: Session | null;
+  jwtToken: string;
+};
+
+export default async function GlobalNavbar(props: Readonly<Props>) {
   let authAction;
-  if (session !== null) {
+  if (props.session !== null) {
     authAction = (
       <div className="justify-content-end">
         <Stack direction="horizontal" gap={3}>
-          <Chat jwtToken={jwtToken?.value as string} sessionID={sessionID} />
+          <Chat
+            jwtToken={props.jwtToken}
+            sessionID={props.session?.user.websocketKey}
+          />
           <MainMenu />
         </Stack>
       </div>
@@ -38,7 +39,7 @@ export default async function GlobalNavbar({
     <Navbar expand={false} className="bg-body-tertiary mb-3">
       <Container fluid>
         <Link className="navbar-brand" href={"/"}>
-          {title}
+          {props.title}
         </Link>
         {authAction}
       </Container>
